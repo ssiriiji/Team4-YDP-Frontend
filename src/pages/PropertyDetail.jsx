@@ -1,7 +1,7 @@
 // src/pages/PropertyDetail.jsx
 import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { MapPin, Bed, Bath, Maximize, Heart, Share2, Phone, Mail, Calendar } from "lucide-react";
+import { MapPin, Bed, Bath, Maximize, Heart, Share2, Phone, Mail } from "lucide-react";
 import Navbar from "../components/Navbar";
 
 function PropertyDetail() {
@@ -10,7 +10,7 @@ function PropertyDetail() {
     const [isFavorite, setIsFavorite] = useState(false);
     const [selectedImage, setSelectedImage] = useState(0);
 
-    // Mock data - ในอนาคตจะดึงจาก API
+    // Mock data
     const property = {
         id: id,
         title: "หมู่บ้านอมิเทียฟรีด้า เกียนกะล่อ 28",
@@ -134,7 +134,8 @@ function PropertyDetail() {
                                     <span>{property.location}</span>
                                 </div>
 
-                                <div className="flex items-center justify-between py-4 border-t border-b border-gray-200 mb-6">
+                                {/* แก้ไขส่วนนี้ - ให้อยู่ตรงกลาง */}
+                                <div className="flex items-center justify-center gap-8 py-4 border-t border-b border-gray-200 mb-6">
                                     <div className="text-center">
                                         <div className="flex items-center justify-center mb-1">
                                             <Bed className="w-5 h-5 text-gray-600" />
@@ -142,7 +143,9 @@ function PropertyDetail() {
                                         <p className="text-sm text-gray-600">ห้องนอน</p>
                                         <p className="text-lg font-bold text-gray-800">{property.bedrooms}</p>
                                     </div>
+                                    
                                     <div className="w-px h-12 bg-gray-200"></div>
+                                    
                                     <div className="text-center">
                                         <div className="flex items-center justify-center mb-1">
                                             <Bath className="w-5 h-5 text-gray-600" />
@@ -150,7 +153,9 @@ function PropertyDetail() {
                                         <p className="text-sm text-gray-600">ห้องน้ำ</p>
                                         <p className="text-lg font-bold text-gray-800">{property.bathrooms}</p>
                                     </div>
+                                    
                                     <div className="w-px h-12 bg-gray-200"></div>
+                                    
                                     <div className="text-center">
                                         <div className="flex items-center justify-center mb-1">
                                             <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -160,7 +165,9 @@ function PropertyDetail() {
                                         <p className="text-sm text-gray-600">ที่จอดรถ</p>
                                         <p className="text-lg font-bold text-gray-800">{property.parking}</p>
                                     </div>
+                                    
                                     <div className="w-px h-12 bg-gray-200"></div>
+                                    
                                     <div className="text-center">
                                         <div className="flex items-center justify-center mb-1">
                                             <Maximize className="w-5 h-5 text-gray-600" />

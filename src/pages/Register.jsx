@@ -1,8 +1,10 @@
 // src/pages/Register.jsx
 import React, { useState } from "react";
 import Navbar from "../components/Navbar";
+import { useNavigate } from "react-router-dom";
 
 function Register() {
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({
         username: "",
         password: "",
@@ -16,17 +18,39 @@ function Register() {
         });
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        
+
         // ตรวจสอบว่ารหัสผ่านตรงกันหรือไม่
         if (formData.password !== formData.confirmPassword) {
             alert("Passwords do not match!");
             return;
         }
-        
-        console.log("Form submitted:", formData);
-        alert(`Account created for: ${formData.username}`);
+
+        try {
+            const response = await fetch('http://localhost:3000/api/auth/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    username: formData.username,
+                    password: formData.password
+                }),
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                alert(`Account created for: ${formData.username}`);
+                navigate('/login');
+            } else {
+                alert(data.message || "Registration failed");
+            }
+        } catch (error) {
+            console.error("Error registering:", error);
+            alert("An error occurred. Please try again.");
+        }
     };
 
     return (

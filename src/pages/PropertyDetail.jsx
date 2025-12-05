@@ -1,50 +1,151 @@
 // src/pages/PropertyDetail.jsx
-import React, { useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { MapPin, Bed, Bath, Maximize, Heart, Share2, Phone, Mail } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { MapPin, Bed, Bath, Maximize, Heart, Share2, Phone, Mail, Sparkles, CheckCircle } from "lucide-react";
 import Navbar from "../components/Navbar";
 
 function PropertyDetail() {
     const { id } = useParams();
     const navigate = useNavigate();
+    const location = useLocation();
     const [isFavorite, setIsFavorite] = useState(false);
     const [selectedImage, setSelectedImage] = useState(0);
+    const [property, setProperty] = useState(null);
+    const [loading, setLoading] = useState(true);
+    
+    // Get AI search state from navigation
+    const aiSearchState = location.state || {};
+    const fromAiSearch = aiSearchState.fromAiSearch || false;
+    const aiScore = aiSearchState.aiScore || 0;
+    const aiSummary = aiSearchState.summary || null;
+    const aiReasons = aiSearchState.reasons || [];
+    const aiPenalties = aiSearchState.penalties || [];
 
-    // Mock data
-    const property = {
-        id: id,
-        title: "หมู่บ้านอมิเทียฟรีด้า เกียนกะล่อ 28",
-        price: "12,500,000",
-        location: "ตำบลเทพารักษ์ เกียนกะล่อ ขางคุนโยง เชียงราย 57000",
-        bedrooms: 3,
-        bathrooms: 5,
-        parking: 4,
-        area: "402.51 ตร.ว.",
-        usableArea: "350 ตร.ม.",
-        status: "ซื้อรอง",
-        type: "บ้านเดี่ยว",
-        description: "บ้านเดี่ยวหรู 2 ชั้น ในหมู่บ้านจัดสรร ทำเลดี ใกล้ศูนย์การค้า โรงเรียน โรงพยาบาล สภาพบ้านพร้อมอยู่ ตกแต่งครบพร้อมเฟอร์นิเจอร์ครบชุด มีสระว่ายน้ำส่วนตัว สวนหน้าบ้านสวยงาม ที่จอดรถกว้างขวาง",
-        features: [
-            "ห้องนอนมาสเตอร์พร้อมห้องน้ำในตัว",
-            "ห้องครัวทันสมัยพร้อมเครื่องใช้ไฟฟ้า",
-            "สระว่ายน้ำส่วนตัว",
-            "สวนหน้าบ้าน",
-            "ระบบรักษาความปลอดภัย 24 ชม.",
-            "ฟิตเนส คลับเฮาส์",
-        ],
-        images: [
-            "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1200",
-            "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=1200",
-            "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=1200",
-            "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1200",
-        ],
-        seller: {
-            name: "บริษัท อสังหาริมทรัพย์ จำกัด",
-            phone: "02-123-4567",
-            email: "contact@property.com",
-        },
-        postedDate: "2024-11-15",
-    };
+    useEffect(() => {
+        // Check if property data was passed from search results
+        if (aiSearchState.property) {
+            // Use the property data from navigation state
+            const passedProperty = aiSearchState.property;
+            const formattedProperty = {
+                id: passedProperty.id,
+                title: passedProperty.title || `ทรัพย์สิน #${id}`,
+                price: passedProperty.price ? passedProperty.price.toLocaleString('th-TH') : "N/A",
+                location: passedProperty.location || "N/A",
+                bedrooms: passedProperty.bedrooms || 0,
+                bathrooms: passedProperty.bathrooms || 0,
+                parking: passedProperty.parking || 0,
+                area: passedProperty.area || "N/A",
+                usableArea: passedProperty.usableArea || "N/A",
+                status: passedProperty.status || "พร้อมขาย",
+                type: passedProperty.type || "คอนโด",
+                description: "คอนโดมิเนียมสุดหรู ทำเลดี ใกล้ศูนย์การค้า โรงเรียน โรงพยาบาล สภาพบ้านพร้อมอยู่ ตกแต่งครบพร้อมเฟอร์นิเจอร์ครบชุด",
+                features: [
+                    "ห้องนอนมาสเตอร์พร้อมห้องน้ำในตัว",
+                    "ห้องครัวทันสมัยพร้อมเครื่องใช้ไฟฟ้า",
+                    "สระว่ายน้ำส่วนกลาง",
+                    "ฟิตเนส",
+                    "ระบบรักษาความปลอดภัย 24 ชม.",
+                    "ที่จอดรถ",
+                ],
+                images: [
+                    passedProperty.image || "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1200",
+                    "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=1200",
+                    "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=1200",
+                    "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1200",
+                ],
+                seller: {
+                    name: "บริษัท อสังหาริมทรัพย์ จำกัด",
+                    phone: "02-123-4567",
+                    email: "contact@property.com",
+                },
+                postedDate: "2024-11-15",
+            };
+            
+            setProperty(formattedProperty);
+            setLoading(false);
+        } else {
+            // Fallback: Fetch from API or use mock data
+            // const fetchProperty = async () => {
+            //     const response = await fetch(`http://localhost:3000/api/properties/${id}`);
+            //     const data = await response.json();
+            //     setProperty(data);
+            //     setLoading(false);
+            // };
+            // fetchProperty();
+
+            // Mock data สำหรับตอนนี้
+            const mockProperty = {
+                id: id,
+                title: `ทรัพย์สิน #${id}`,
+                price: "5,211,000",
+                location: "N/A",
+                bedrooms: 2,
+                bathrooms: 1,
+                parking: 2,
+                area: "N/A",
+                usableArea: "N/A",
+                status: "พร้อมขาย",
+                type: "คอนโด",
+                description: "คอนโดมิเนียมสุดหรู ทำเลดี ใกล้ศูนย์การค้า โรงเรียน โรงพยาบาล สภาพบ้านพร้อมอยู่ ตกแต่งครบพร้อมเฟอร์นิเจอร์ครบชุด",
+                features: [
+                    "ห้องนอนมาสเตอร์พร้อมห้องน้ำในตัว",
+                    "ห้องครัวทันสมัยพร้อมเครื่องใช้ไฟฟ้า",
+                    "สระว่ายน้ำส่วนกลาง",
+                    "ฟิตเนส",
+                    "ระบบรักษาความปลอดภัย 24 ชม.",
+                    "ที่จอดรถ",
+                ],
+                images: [
+                    "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1200",
+                    "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=1200",
+                    "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=1200",
+                    "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1200",
+                ],
+                seller: {
+                    name: "บริษัท อสังหาริมทรัพย์ จำกัด",
+                    phone: "02-123-4567",
+                    email: "contact@property.com",
+                },
+                postedDate: "2024-11-15",
+            };
+            
+            setProperty(mockProperty);
+            setLoading(false);
+        }
+    }, [id, aiSearchState]);
+
+    if (loading) {
+        return (
+            <>
+                <Navbar />
+                <div className="min-h-screen bg-gray-50 pt-16 flex items-center justify-center">
+                    <div className="text-center">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-700 mx-auto"></div>
+                        <p className="mt-4 text-gray-600">กำลังโหลดข้อมูล...</p>
+                    </div>
+                </div>
+            </>
+        );
+    }
+
+    if (!property) {
+        return (
+            <>
+                <Navbar />
+                <div className="min-h-screen bg-gray-50 pt-16 flex items-center justify-center">
+                    <div className="text-center">
+                        <p className="text-xl text-gray-600">ไม่พบข้อมูลทรัพย์สิน</p>
+                        <button
+                            onClick={() => navigate("/search-results")}
+                            className="mt-4 px-6 py-2 bg-green-700 text-white rounded-xl hover:bg-green-800"
+                        >
+                            กลับไปหน้าค้นหา
+                        </button>
+                    </div>
+                </div>
+            </>
+        );
+    }
 
     return (
         <>
@@ -52,13 +153,66 @@ function PropertyDetail() {
 
             <div className="min-h-screen bg-gray-50 pt-16">
                 <div className="max-w-7xl mx-auto px-4 py-8">
+                    {/* AI Search Info Banner */}
+                    {fromAiSearch && aiScore > 0 && (
+                        <div className="mb-6 bg-purple-50 border-2 border-purple-200 rounded-2xl p-6 shadow-lg">
+                            <div className="flex items-start gap-4">
+                                <div className="shrink-0">
+                                    <div className="w-16 h-16 bg-purple-600 rounded-full flex items-center justify-center">
+                                        <Sparkles className="w-8 h-8 text-white" />
+                                    </div>
+                                </div>
+                                <div className="flex-1">
+                                    <div className="flex items-center gap-3 mb-2">
+                                        <h3 className="text-xl font-bold text-gray-800">AI Match Score</h3>
+                                        <span className="px-4 py-1 bg-purple-600 text-white text-lg font-bold rounded-full">
+                                            {Math.round(aiScore * 100)}%
+                                        </span>
+                                    </div>
+                                    
+                                    {aiSummary && (
+                                        <p className="text-gray-700 mb-4 leading-relaxed">{aiSummary}</p>
+                                    )}
+                                    
+                                    {aiReasons && aiReasons.length > 0 && (
+                                        <div className="space-y-2">
+                                            <p className="text-sm font-semibold text-gray-700">ทำไมเราแนะนำทรัพย์สินนี้:</p>
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                                                {aiReasons.map((reason, index) => (
+                                                    <div key={index} className="flex items-start gap-2 text-sm">
+                                                        <CheckCircle className="w-5 h-5 text-green-600 shrink-0 mt-0.5" />
+                                                        <span className="text-gray-700">{reason}</span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+                                    
+                                    {aiPenalties && aiPenalties.length > 0 && (
+                                        <div className="mt-4 pt-4 border-t border-purple-200">
+                                            <p className="text-sm font-semibold text-gray-700 mb-2">หมายเหตุ:</p>
+                                            <div className="space-y-1">
+                                                {aiPenalties.map((penalty, index) => (
+                                                    <div key={index} className="flex items-start gap-2 text-sm">
+                                                        <span className="text-orange-600">⚠️</span>
+                                                        <span className="text-gray-600">{penalty}</span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
                     {/* Breadcrumb */}
                     <div className="mb-6 text-sm text-gray-600">
                         <button onClick={() => navigate("/")} className="hover:text-green-600">
                             หน้าแรก
                         </button>
                         <span className="mx-2">/</span>
-                        <button onClick={() => navigate("/search-results")} className="hover:text-green-600">
+                        <button onClick={() => navigate(-1)} className="hover:text-green-600">
                             ผลการค้นหา
                         </button>
                         <span className="mx-2">/</span>
@@ -90,9 +244,8 @@ function PropertyDetail() {
                                             className="p-3 bg-white rounded-full hover:bg-gray-100 transition shadow-lg"
                                         >
                                             <Heart
-                                                className={`w-6 h-6 ${
-                                                    isFavorite ? "fill-red-500 text-red-500" : "text-gray-600"
-                                                }`}
+                                                className={`w-6 h-6 ${isFavorite ? "fill-red-500 text-red-500" : "text-gray-600"
+                                                    }`}
                                             />
                                         </button>
                                         <button className="p-3 bg-white rounded-full hover:bg-gray-100 transition shadow-lg">
@@ -107,11 +260,10 @@ function PropertyDetail() {
                                         <button
                                             key={index}
                                             onClick={() => setSelectedImage(index)}
-                                            className={`relative h-24 rounded-lg overflow-hidden ${
-                                                selectedImage === index
+                                            className={`relative h-24 rounded-lg overflow-hidden ${selectedImage === index
                                                     ? "ring-4 ring-green-600"
                                                     : "ring-2 ring-gray-200"
-                                            }`}
+                                                }`}
                                         >
                                             <img
                                                 src={image}
@@ -143,9 +295,9 @@ function PropertyDetail() {
                                         <p className="text-sm text-gray-600">ห้องนอน</p>
                                         <p className="text-lg font-bold text-gray-800">{property.bedrooms}</p>
                                     </div>
-                                    
+
                                     <div className="w-px h-12 bg-gray-200"></div>
-                                    
+
                                     <div className="text-center">
                                         <div className="flex items-center justify-center mb-1">
                                             <Bath className="w-5 h-5 text-gray-600" />
@@ -153,9 +305,9 @@ function PropertyDetail() {
                                         <p className="text-sm text-gray-600">ห้องน้ำ</p>
                                         <p className="text-lg font-bold text-gray-800">{property.bathrooms}</p>
                                     </div>
-                                    
+
                                     <div className="w-px h-12 bg-gray-200"></div>
-                                    
+
                                     <div className="text-center">
                                         <div className="flex items-center justify-center mb-1">
                                             <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -165,9 +317,9 @@ function PropertyDetail() {
                                         <p className="text-sm text-gray-600">ที่จอดรถ</p>
                                         <p className="text-lg font-bold text-gray-800">{property.parking}</p>
                                     </div>
-                                    
+
                                     <div className="w-px h-12 bg-gray-200"></div>
-                                    
+
                                     <div className="text-center">
                                         <div className="flex items-center justify-center mb-1">
                                             <Maximize className="w-5 h-5 text-gray-600" />
@@ -188,7 +340,7 @@ function PropertyDetail() {
                                         {property.features.map((feature, index) => (
                                             <li key={index} className="flex items-start">
                                                 <svg
-                                                    className="w-5 h-5 text-green-600 mr-2 mt-0.5 flex-shrink-0"
+                                                    className="w-5 h-5 text-green-600 mr-2 mt-0.5 shrink-0"
                                                     fill="none"
                                                     stroke="currentColor"
                                                     viewBox="0 0 24 24"
